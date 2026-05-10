@@ -35,6 +35,7 @@ const fallbackPrograms: Program[] = [
       { title: "Full-Stack Web Engineering", hook: "Ship production apps with React, Node & Postgres.", duration: "10 WEEKS", level: "BEGINNER â†’ MID", tags: ["React", "Node", "SQL"] },
       { title: "Applied AI / ML", hook: "Train, deploy and monitor real ML pipelines.", duration: "12 WEEKS", level: "INTERMEDIATE", tags: ["Python", "PyTorch", "MLOps"] },
     ],
+    features: ["Internship", "Certification", "Training Complete", "Practical Session"],
   },
   {
     id: "winter",
@@ -44,6 +45,7 @@ const fallbackPrograms: Program[] = [
     content: "Compact winter cohort focused on shipping a deployable product from day one. Lineup unlocks soon.",
     startsInDays: 45,
     courses: [],
+    features: ["Internship", "Certification", "Training Complete", "Practical Session"],
   },
   {
     id: "workshops",
@@ -56,6 +58,7 @@ const fallbackPrograms: Program[] = [
       { title: "K8s for Builders", hook: "Run real workloads on Kubernetes â€” hands on.", date: "JUL 02", startsInDays: 18 },
       { title: "Edge AI on Device", hook: "Ship ML to phones & micro-devices.", date: "JUL 28", startsInDays: 44 },
     ],
+    features: ["Internship", "Certification", "Training Complete", "Practical Session"],
   },
 ];
 
@@ -105,91 +108,106 @@ const Countdown = ({ targetDays = 21, label = "NEXT BATCH IN" }: { targetDays?: 
   );
 };
 
-const InternshipPanel = ({
-  prog,
-  hovered,
-  onHoverChange,
-}: {
-  prog: ProgramItem;
-  hovered: boolean;
-  onHoverChange: (value: boolean) => void;
-}) => (
-  <div className="space-y-4">
-    <div className="flex items-start justify-between gap-4">
-      <h3 className="font-display font-bold text-2xl">{prog.label}</h3>
-      {typeof prog.startsInDays === "number" && prog.startsInDays > 0 && (
-        <div className="text-right">
-          <Countdown targetDays={prog.startsInDays} label="NEXT BATCH IN" />
-          <p className="mt-1 text-[10px] font-mono text-muted-foreground">unlock</p>
-        </div>
-      )}
-    </div>
+const isLocked = (prog: ProgramItem): boolean => {
+  if (prog.isLocked === true) return true;
+  if (prog.unlockDate) {
+    const unlockDate = new Date(prog.unlockDate);
+    return unlockDate > new Date();
+  }
+  return false;
+};
 
-    <p className="text-sm text-muted-foreground truncate">{prog.content}</p>
+const InternshipCard = ({ prog }: { prog: ProgramItem }) => {
+  const [hovered, setHovered] = useState(false);
+  const locked = isLocked(prog);
+  const daysLeft = locked && prog.unlockDate ? daysUntil(prog.unlockDate) : 0;
+  const isWorkshop = prog.icon === "Wrench";
 
-    <div className="grid md:grid-cols-3 gap-4 mt-6">
+  return (
+    <motion.div
+      className="relative rounded-2xl border border-border bg-card/60 backdrop-blur-sm overflow-hidden cursor-pointer"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      whileHover={{ y: -4 }}
+    >
+      {/* Card image or gradient background */}
       <div
-        className="relative h-48 rounded-2xl overflow-hidden"
-        style={
-          prog.imageUrl
-            ? { backgroundImage: `url(${prog.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
-            : { background: "linear-gradient(135deg, hsl(220 25% 18%), hsl(220 20% 10%))" }
+        className="relative h-48 w-full"
+        style={prog.imageUrl
+          ? { backgroundImage: `url(${prog.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+          : { background: "linear-gradient(135deg, hsl(220 25% 18%), hsl(220 20% 10%))" }
         }
-        onMouseEnter={() => onHoverChange(true)}
-        onMouseLeave={() => onHoverChange(false)}
       >
-        <div className="absolute inset-0 grid-overlay opacity-30" />
-        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background/90 via-background/20 to-transparent flex items-end justify-between gap-3">
-          <p className="font-display font-bold text-base">{prog.label}</p>
-          <p className="font-mono text-xs text-muted-foreground">{prog.duration}</p>
-        </div>
+        <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-transparent to-background/80" />
+        
+        {/* Lock overlay on image area when locked */}
+        {locked && (
+          <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
+            <Lock size={28} className="text-primary" />
+            <span className="font-mono text-[10px] tracking-widest text-muted-foreground">LOCKED</span>
+            {daysLeft > 0 && <Countdown targetDays={daysLeft} label="" />}
+          </div>
+        )}
       </div>
 
-      <div className="relative h-48 rounded-2xl border border-border bg-background p-5 flex flex-col justify-between overflow-hidden">
-        <div className="space-y-3">
-          {["Internship", "Certification", "Training Complete", "Practical Session"].map((item) => (
-            <div key={item} className="flex items-center gap-2 text-sm">
-              <span className="text-green-400 font-bold">✓</span>
-              <span className="text-green-400">{item}</span>
-            </div>
-          ))}
+      {/* Card content */}
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-4 mb-2">
+          <h3 className="font-display font-bold text-xl">{prog.label}</h3>
+          <span className="font-mono text-xs text-muted-foreground bg-card border border-border px-2 py-1 rounded-full flex-shrink-0">
+            {isWorkshop ? "WORKSHOP" : prog.duration}
+          </span>
         </div>
-        <button className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg border-2 border-foreground/80 font-medium text-sm">
-          View More
-        </button>
+        <p className="text-sm text-muted-foreground line-clamp-2">{prog.content}</p>
+        {!locked && prog.startsInDays && prog.startsInDays > 0 && (
+          <div className="mt-4">
+            <Countdown targetDays={prog.startsInDays} label="NEXT BATCH IN" />
+          </div>
+        )}
+      </div>
 
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              key={`${prog.id}-feature-overlay`}
-              initial={{ x: "100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "100%", opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute inset-0 rounded-2xl border border-border bg-background p-5 flex flex-col justify-between"
-            >
+      {/* Hover aside panel */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="absolute inset-0 rounded-2xl bg-background border border-primary/40 p-6 flex flex-col justify-between"
+          >
+            <div>
+              <p className="font-mono text-xs tracking-widest text-primary mb-4">WHAT'S INCLUDED</p>
               <div className="space-y-3">
-                {["Internship", "Certification", "Training Complete", "Practical Session"].map((item) => (
+                {(prog.features?.length
+                  ? prog.features
+                  : ["Internship", "Certification", "Training Complete", "Practical Session"]
+                ).map((item) => (
                   <div key={item} className="flex items-center gap-2 text-sm">
                     <span className="text-green-400 font-bold">✓</span>
                     <span className="text-green-400">{item}</span>
                   </div>
                 ))}
               </div>
-              <button className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg border-2 border-foreground/80 font-medium text-sm">
-                View More
+            </div>
+            {locked ? (
+              <button
+                disabled
+                className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg border-2 border-foreground/20 font-medium text-sm text-muted-foreground cursor-not-allowed mt-4"
+              >
+                <Lock size={14} /> Unlocks in {daysLeft}d
               </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="h-48 rounded-2xl border border-border bg-background p-5 overflow-hidden">
-        <p className="text-sm text-muted-foreground leading-relaxed">{prog.content}</p>
-      </div>
-    </div>
-  </div>
-);
+            ) : (
+              <button className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg border-2 border-foreground/80 hover:bg-foreground/10 font-medium text-sm mt-4">
+                View More <ArrowRight size={14} />
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 const SummerBG = () => (
   <motion.div key="summer-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}
@@ -345,6 +363,9 @@ type ProgramItem = {
   imageUrl?: string | null;
   courses: Course[];
   workshops: Workshop[];
+  features: string[];
+  isLocked?: boolean;
+  unlockDate?: string | null;
 };
 
 // â”€â”€ Convert fallback Program[] (which use component refs) to ProgramItem[] â”€â”€â”€â”€
@@ -365,6 +386,9 @@ const fallbackItems: ProgramItem[] = fallbackPrograms.map((p) => ({
   imageUrl: null,
   courses: (p.courses ?? []) as Course[],
   workshops: (p.workshops ?? []) as Workshop[],
+  features: p.features ?? ["Internship", "Certification", "Training Complete", "Practical Session"],
+  isLocked: false,
+  unlockDate: null,
 }));
 
 // â”€â”€ Fixed 3 tabs â€” always rendered regardless of DB data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -412,55 +436,107 @@ const ProgramCard = ({ prog, accent }: { prog: ProgramItem; accent: string }) =>
   </motion.div>
 );
 
+const daysUntil = (dateStr: string): number => {
+  const diff = new Date(dateStr).getTime() - Date.now();
+  return Math.max(0, Math.ceil(diff / 86400000));
+}
+
 const Programs = () => {
   const [active, setActive] = useState<TabId>("summer");
   const [items, setItems] = useState<ProgramItem[]>(fallbackItems);
-  const [hoveredProgramId, setHoveredProgramId] = useState<string | null>(null);
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
+
+    const mapProgramItem = (p: any): ProgramItem => ({
+      id: p.id,
+      icon: p.icon ?? "Sun",
+      label: p.label,
+      duration: p.duration,
+      content: p.content,
+      startsInDays: p.starts_in_days ?? undefined,
+      imageUrl: p.image_url ?? null,
+      courses: p.website_program_courses?.map((c: any) => ({
+        title: c.title,
+        hook: c.hook,
+        duration: c.duration,
+        level: c.level,
+        tags: c.tags ?? [],
+        desc: c.description ?? "",
+        skills: c.skills ?? [],
+        icon: "Brain",
+      })) ?? [],
+      workshops: p.website_program_workshops?.map((w: any) => ({
+        title: w.title,
+        hook: w.hook,
+        date: w.date,
+        startsInDays: w.starts_in_days ?? 0,
+      })) ?? [],
+      features: (() => {
+        try {
+          const parsed = JSON.parse(p.features ?? "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return ["Internship", "Certification", "Training Complete", "Practical Session"];
+        }
+      })(),
+      isLocked: p.is_locked ?? false,
+      unlockDate: p.unlock_date ?? null,
+    });
 
     const load = async () => {
       const { data, error } = await supabase
         .from("website_programs")
         .select(
-          "id, icon, label, duration, content, starts_in_days, image_url, website_program_courses(*), website_program_workshops(*)"
+          "id, icon, label, duration, content, starts_in_days, image_url, features, is_locked, unlock_date, website_program_courses(*), website_program_workshops(*)"
         )
         .eq("is_active", true);
 
       if (!error && data && data.length > 0) {
         console.log("Program icons from Supabase:", data.map((p: any) => ({ label: p.label, icon: p.icon })));
-        setItems(
-          data.map((p: any): ProgramItem => ({
-            id: p.id,
-            icon: p.icon ?? "Sun",        // keep as raw string â€” grouping uses this directly
-            label: p.label,
-            duration: p.duration,
-            content: p.content,
-            startsInDays: p.starts_in_days ?? undefined,
-            imageUrl: p.image_url ?? null,
-            courses: p.website_program_courses?.map((c: any) => ({
-              title: c.title,
-              hook: c.hook,
-              duration: c.duration,
-              level: c.level,
-              tags: c.tags ?? [],
-              desc: c.description ?? "",
-              skills: c.skills ?? [],
-              icon: "Brain",
-            })) ?? [],
-            workshops: p.website_program_workshops?.map((w: any) => ({
-              title: w.title,
-              hook: w.hook,
-              date: w.date,
-              startsInDays: w.starts_in_days ?? 0,
-            })) ?? [],
-          }))
-        );
+        setItems(data.map((p: any): ProgramItem => mapProgramItem(p)));
+        return;
+      }
+
+      if (error?.message?.includes("is_timer_only")) {
+        console.warn("Schema cache still references is_timer_only. Falling back to base program fetch.");
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("website_programs")
+          .select("id, icon, label, duration, content, starts_in_days, image_url, features")
+          .eq("is_active", true);
+
+        if (!fallbackError && fallbackData && fallbackData.length > 0) {
+          console.log(
+            "Program icons from Supabase:",
+            fallbackData.map((p: any) => ({ label: p.label, icon: p.icon }))
+          );
+          setItems(
+            fallbackData.map((p: any): ProgramItem =>
+              mapProgramItem({ ...p, website_program_courses: [], website_program_workshops: [] })
+            )
+          );
+          return;
+        }
       }
     };
 
     void load();
+  }, []);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const loadSettings = async () => {
+      const { data } = await supabase
+        .from("website_settings")
+        .select("key, value");
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach((s: any) => { map[s.key] = s.value; });
+        setSettings(map);
+      }
+    };
+    void loadSettings();
   }, []);
 
   // Group by raw icon string â€” simple, unambiguous, no component-ref comparison
@@ -520,56 +596,86 @@ const Programs = () => {
               {/* â”€â”€ Summer â”€â”€ */}
               {active === "summer" && (
                 <div className="space-y-10">
-                  {summer.map((prog) => (
-                    <InternshipPanel
-                      key={prog.id}
-                      prog={prog}
-                      hovered={hoveredProgramId === prog.id}
-                      onHoverChange={(value) => setHoveredProgramId(value ? prog.id : null)}
-                    />
-                  ))}
+                  <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
+                    <div>
+                      <p className="font-mono text-xs tracking-widest text-primary mb-1">— SUMMER INTERNSHIP —</p>
+                      <h3 className="font-display text-3xl font-bold">Build Real. Ship Real.</h3>
+                    </div>
+                    {settings.summerNextBatch && (
+                      <Countdown targetDays={daysUntil(settings.summerNextBatch)} label="NEXT BATCH IN" />
+                    )}
+                  </div>
+                  {summer.length > 0 ? (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {summer.map((prog) => (
+                        <InternshipCard key={prog.id} prog={prog} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 gap-6">
+                      {settings.summerNextBatch
+                        ? <Countdown targetDays={daysUntil(settings.summerNextBatch)} label="NEXT BATCH IN" />
+                        : <p className="text-sm text-muted-foreground">No programs scheduled yet.</p>
+                      }
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* â”€â”€ Winter â€” cards if data exists, countdown fallback otherwise â”€â”€ */}
               {active === "winter" && winter.length > 0 && (
                 <div className="space-y-10">
-                  {winter.map((prog) => (
-                    <InternshipPanel
-                      key={prog.id}
-                      prog={prog}
-                      hovered={hoveredProgramId === prog.id}
-                      onHoverChange={(value) => setHoveredProgramId(value ? prog.id : null)}
-                    />
-                  ))}
+                  <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
+                    <div>
+                      <p className="font-mono text-xs tracking-widest text-primary mb-1">— WINTER INTERNSHIP —</p>
+                      <h3 className="font-display text-3xl font-bold">Winter Cohort</h3>
+                    </div>
+                    {settings.winterNextBatch && (
+                      <Countdown targetDays={daysUntil(settings.winterNextBatch)} label="NEXT BATCH IN" />
+                    )}
+                  </div>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {winter.map((prog) => (
+                      <InternshipCard key={prog.id} prog={prog} />
+                    ))}
+                  </div>
                 </div>
               )}
               {active === "winter" && winter.length === 0 && (
-                <>
-                  <div className="flex justify-center mb-8">
-                    <Countdown targetDays={45} label="NEXT BATCH IN" />
-                  </div>
-                  <div className="rounded-2xl border-2 border-dashed border-primary/30 p-8 text-center">
-                    <Snowflake className="mx-auto mb-4 text-primary animate-pulse" size={36} />
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto">Winter Lineup Unlocks Soon</p>
-                  </div>
-                </>
+                <div className="flex flex-col items-center justify-center py-16 gap-6">
+                  {settings.winterNextBatch
+                    ? <Countdown targetDays={daysUntil(settings.winterNextBatch)} label="NEXT BATCH IN" />
+                    : <p className="text-sm text-muted-foreground">No programs scheduled yet.</p>
+                  }
+                </div>
               )}
 
               {/* â”€â”€ Workshops â€” each program row becomes a WorkshopCard â”€â”€ */}
               {active === "workshops" && (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {workshops.map((prog) => (
-                    <WorkshopCard
-                      key={prog.id}
-                      w={{
-                        title: prog.label,
-                        hook: prog.content,
-                        date: prog.duration,
-                        startsInDays: prog.startsInDays ?? 0,
-                      }}
-                    />
-                  ))}
+                <div className="space-y-10">
+                  <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
+                    <div>
+                      <p className="font-mono text-xs tracking-widest text-primary mb-1">— WORKSHOPS —</p>
+                      <h3 className="font-display text-3xl font-bold">Learn by Doing</h3>
+                    </div>
+                    {settings.workshopNextBatch && (
+                      <Countdown targetDays={daysUntil(settings.workshopNextBatch)} label="NEXT BATCH IN" />
+                    )}
+                  </div>
+                  {workshops.length > 0 ? (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {workshops.map((prog) => (
+                        <InternshipCard key={prog.id} prog={prog} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 gap-6">
+                      {settings.workshopNextBatch
+                        ? <Countdown targetDays={daysUntil(settings.workshopNextBatch)} label="NEXT BATCH IN" />
+                        : <p className="text-sm text-muted-foreground">No programs scheduled yet.</p>
+                      }
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

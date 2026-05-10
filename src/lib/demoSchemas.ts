@@ -9,6 +9,7 @@ export type CourseData = {
   hook?: string;
   level?: string;
   tags?: string[];
+  imageUrl?: string | null;
 };
 
 export type TestimonialData = {
