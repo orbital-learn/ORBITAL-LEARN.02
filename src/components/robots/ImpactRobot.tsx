@@ -1,3 +1,9 @@
+/**
+ * Orbital Learn LMS
+ * @author prashB2D (https://github.com/prashB2D)
+ * @copyright 2025 Orbital Learn. All rights reserved.
+ */
+
 import { useEffect, useState, useRef, type RefObject } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
 import './ImpactRobot.css';
@@ -24,7 +30,7 @@ interface ImpactRobotProps {
   /**
    * Optional anchor for section-relative scroll tracking.
    */
-  anchorRef?: RefObject<HTMLElement>;
+  anchorRef?: RefObject<HTMLDivElement>;
 }
 
 /**
@@ -45,7 +51,7 @@ export default function ImpactRobot({
   topOffset = 30,
   anchorRef,
 }: ImpactRobotProps) {
-  const internalAnchorRef = useRef<HTMLElement>(null);
+  const internalAnchorRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const lastScrollY = useRef(0);

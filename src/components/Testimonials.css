@@ -1,3 +1,9 @@
+/*
+ * Orbital Learn LMS
+ * @author prashB2D (https://github.com/prashB2D)
+ * @copyright 2025 Orbital Learn. All rights reserved.
+ */
+
 .page {
   position: relative;
   box-sizing: border-box;
@@ -9,7 +15,7 @@
   height: 320px;
   overflow: hidden;
   background: #fff;
-  background-image: linear-gradient(#f5f5f0 1.1rem, #ccc 1.2rem);
+  background-image: linear-gradient(#f5f5f0 1.05rem, #bbb 1.2rem);
   background-size: 100% 1.2rem;
   line-height: 1.2rem;
   padding: 1.4rem 0.5rem 0.3rem 4.5rem;
@@ -45,7 +51,7 @@
 
 .margin {
   position: absolute;
-  border-left: 1px solid #d88;
+  border-left: 2px solid #d66;
   height: 100%;
   left: 3.3rem;
   top: 0;
@@ -64,6 +70,7 @@
   text-indent: 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 6;
+  line-clamp: 6;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -107,12 +114,11 @@
 }
 
 .stars-container {
-  position: absolute;
-  top: 6%;
-  right: 1%;
   display: flex;
   gap: 2px;
-  z-index: 5;
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+  margin-left: 1rem;
 }
 
 .star-gold {
@@ -123,7 +129,7 @@
 /* --- Card Animation CSS --- */
 .wrap_card {
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* so outer cards don't clip */
   width: var(--w-wrap-card);
   height: calc(var(--h-card) * 1.15);
   display: flex;
@@ -131,66 +137,19 @@
   justify-content: center;
   --w-card: 320px;
   --h-card: 320px;
-  --rotate-card: 10deg;
-  --insetX-card: 45px;
-  --t-card: calc(var(--insetX-card) * 1.25);
   --w-wrap-card: calc(var(--w-card) + calc(calc(var(--w-card) / 2) * 2));
-  margin: 40px auto 0 auto; /* Center in container with top margin */
+  margin: 40px auto 0 auto;
 }
-
-
 
 .anim-card {
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
-  overflow: hidden;
-  animation: rotating 15s linear infinite 0s;
-  border-radius: var(--round);
-  background: var(--bg);
-  order: var(--order);
+  border-radius: 16px;
   width: var(--w-card);
   height: var(--h-card);
-  z-index: var(--z1);
-  top: var(--t1);
-  left: var(--l1);
-  right: var(--r1);
-  transform: var(--trans1);
-  --pd: 4px;
-  --round: 16px;
-  --x1: var(--insetX-card);
-  --x2: calc(var(--w-wrap-card) - calc(var(--w-card) + var(--insetX-card)));
-  --to-left: rotate(calc(var(--rotate-card) * -1));
-  --to-center: calc(var(--w-card) / 2);
-  --to-right: rotate(calc(var(--rotate-card) * 1));
-}
-
-.anim-card:nth-child(1) {
-  --order: 2;
-  --bg: radial-gradient(circle, rgba(252, 240, 142, 1) 0%, rgba(246, 173, 32, 1) 40%, rgba(192, 142, 8, 1) 100%);
-  --z1: 2; --t1: 0; --l1: var(--to-center); --r1: var(--to-center); --trans1: rotate(calc(var(--rotate-card) * 0));
-  --z2: 0; --t2: var(--t-card); --l2: var(--x1); --r2: var(--x2); --trans2: var(--to-left);
-  --z3: 0; --t3: var(--t-card); --l3: var(--x2); --r3: var(--x1); --trans3: var(--to-right);
-}
-.anim-card:nth-child(2) {
-  --order: 3;
-  --bg: radial-gradient(circle, rgba(142, 249, 252, 1) 0%, rgba(32, 164, 246, 1) 40%, rgba(8, 81, 192, 1) 100%);
-  --z1: 0; --t1: var(--t-card); --l1: var(--x2); --r1: var(--x1); --trans1: var(--to-right);
-  --z2: 2; --t2: 0; --l2: var(--to-center); --r2: var(--to-center); --trans2: rotate(calc(var(--rotate-card) * 0));
-  --z3: 0; --t3: var(--t-card); --l3: var(--x1); --r3: var(--x2); --trans3: var(--to-left);
-}
-.anim-card:nth-child(3) {
-  --order: 1;
-  --bg: radial-gradient(circle, rgba(222, 128, 233, 1) 0%, rgba(213, 32, 246, 1) 40%, rgba(139, 6, 157, 1) 100%);
-  --z1: 0; --t1: var(--t-card); --l1: var(--x1); --r1: var(--x2); --trans1: var(--to-left);
-  --z2: 0; --t2: var(--t-card); --l2: var(--x2); --r2: var(--x1); --trans2: var(--to-right);
-  --z3: 2; --t3: 0; --l3: var(--to-center); --r3: var(--to-center); --trans3: rotate(calc(var(--rotate-card) * 0));
-}
-@keyframes rotating {
-  0%, 99.99% { z-index: var(--z1); top: var(--t1); left: var(--l1); right: var(--r1); transform: var(--trans1); }
-  33.33% { z-index: var(--z2); top: var(--t2); left: var(--l2); right: var(--r2); transform: var(--trans2); }
-  66.66% { z-index: var(--z3); top: var(--t3); left: var(--l3); right: var(--r3); transform: var(--trans3); }
+  padding: 2px;
 }
 
 .lines {

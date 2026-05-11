@@ -1,3 +1,9 @@
+/**
+ * Orbital Learn LMS
+ * @author prashB2D (https://github.com/prashB2D)
+ * @copyright 2025 Orbital Learn. All rights reserved.
+ */
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
