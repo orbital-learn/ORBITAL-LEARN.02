@@ -69,7 +69,7 @@ const Testimonials = () => {
 
     timerRef.current = setTimeout(() => {
       // After 5 seconds, resume the normal interval
-      timerRef.current = setInterval(nextCard, 2500);
+      timerRef.current = setInterval(nextCard, 7000);
     }, 5000);
   };
 
@@ -81,7 +81,7 @@ const Testimonials = () => {
       clearTimeout(timerRef.current);
     }
     
-    timerRef.current = setInterval(nextCard, 2500);
+    timerRef.current = setInterval(nextCard, 7000);
 
     return () => {
       if (timerRef.current) {
